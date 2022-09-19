@@ -43,7 +43,8 @@ pip install -r requirements.txt
 	python train.py --dataset Nadi --baseline camel --device_group 0
 	```
 	* The params could be :
-    - --baseline ={camel,arbert, mdb}
+    		
+		- --baseline ={camel,arbert, mdb}
 		- --dataset =\{Nadi,QADI,Corpus-6, Corpus-9, Corpus-26\}	
 		- --device_group ="0" # GPU ID
 
@@ -53,9 +54,10 @@ The the results will be written into results_bert.txt
 python train_LSTM.py --dataset Nadi --embeding cbow58 --device_group 0
 ```
   * The params could be :
-    - --embeding=\{cbow58, arabvec\}
-		- --dataset =\{Nadi,QADI,Corpus-6, Corpus-9, Corpus-26\}	
-		- --device_group ="0" # GPU ID
+    	
+	- --embeding=\{cbow58, arabvec\}
+	- --dataset =\{Nadi,QADI,Corpus-6, Corpus-9, Corpus-26\}	
+	- --device_group ="0" # GPU ID
 
 The the results will be written into results_lstm.txt
 
