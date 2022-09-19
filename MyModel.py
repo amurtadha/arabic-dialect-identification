@@ -3,7 +3,6 @@ import torch.nn as nn
 from transformers import  AutoModel, AutoConfig, AutoModelForSequenceClassification
 import torch.nn.functional as F
 
-
 class Attn(nn.Module):
     def __init__(self, h_dim):
         super(Attn, self).__init__()
@@ -20,22 +19,13 @@ class Attn(nn.Module):
         attn_ene = self.cr_att(encoder_outputs.reshape(b_size*s_size,self.h_dim))  # (b, s, h) -> (b * s, 1)
         return F.softmax(attn_ene.reshape(b_size,s_size), dim=1).unsqueeze(2)  # (b*s, 1) -> (b, s, 1)
 
-
-
 class AttnClassifier(nn.Module):
     def __init__(self, opt,embedding_matrix, batch_first=True):
         super(AttnClassifier, self).__init__()
         self.attn = Attn(opt.hidden_dim*2)
-
-
         self.embed = nn.Embedding.from_pretrained(torch.tensor(embedding_matrix, dtype=torch.float))
-
-        self.lstm = nn.LSTM(opt.hidden_dim, opt.hidden_dim, batch_first=batch_first,
-                            bidirectional=True)
-
-        self.cr = nn.Linear(opt.hidden_dim*2, opt.lebel_dim)
-       
-
+        self.lstm = nn.LSTM(opt.hidden_dim, opt.hidden_dim, batch_first=batch_first,bidirectional=True)
+        self.cr = nn.Linear(opt.hidden_dim*2, opt.lebel_dim)       
     def forward(self, inputs):
         emb = self.embed(inputs[0])
         out, hidden = self.lstm(emb)
@@ -43,46 +33,18 @@ class AttnClassifier(nn.Module):
         feats = (out * attns).sum(dim=1)  # (b, s, h) -> (b, h)
         return self.cr(feats)
     
-class PureLSTMClassifier(nn.Module):
-    def __init__(self, opt,embedding_matrix):
-        super(PureLSTMClassifier, self).__init__()
-        self.embed = nn.Embedding.from_pretrained(torch.tensor(embedding_matrix, dtype=torch.float))
-        self.cr = nn.Linear(opt.hidden_dim, opt.lebel_dim)
-        self.encoder= nn.LSTM( opt.hidden_dim, opt.hidden_dim, batch_first=True)
-
-    def forward(self, inputs):
-        embed = self.embed(inputs[0])
-        output, (final_hidden_state, final_cell_state)= self.encoder(embed)
-        return self.cr(final_hidden_state[-1])
-
-class PureBERT(nn.Module):
-
-    def __init__(self, args):
-        super(PureBERT, self).__init__()
-        config = AutoConfig.from_pretrained(args.pretrained_bert_name)
-        config.num_labels = args.lebel_dim
-        self.encoder = AutoModelForSequenceClassification.from_pretrained(args.pretrained_bert_name, config=config)
-        self.encoder.to('cuda')
-    def forward(self, inputs):
-        input_ids, token_type_ids, attention_mask = inputs[:3]
-        outputs = self.encoder(input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask)
-
-        return outputs['logits']
 
 class ADIBERTCustom(nn.Module):
-
     def __init__(self, args, hidden_size=256):
         super(ADIBERTCustom, self).__init__()
         config = AutoConfig.from_pretrained(args.pretrained_bert_name)
         self.enocder = AutoModel.from_pretrained(args.pretrained_bert_name, config=config)
         self.enocder.to('cuda')
         self.attn = Attn(args.hidden_dim)
-
         layers = [nn.Linear(config.hidden_size, args.lebel_dim)]
         self.classifier = nn.Sequential(*layers)
 
     def forward(self, inputs):
-
         input_ids,token_type_ids, attention_mask = inputs[:3]
         outputs = self.enocder(input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask)
         pooled_output = outputs['last_hidden_state']
