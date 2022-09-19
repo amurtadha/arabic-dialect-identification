@@ -49,7 +49,7 @@ class Instructor:
         self.opt.lebel_dim = len(json.load(open('../datasets/{0}/labels.json'.format(opt.dataset))))
 
 
-        print(len( self.trainset), len( self.testset), len( self.valset))
+        logger.info(len( self.trainset), len( self.testset), len( self.valset))
         self.model = AttnClassifier(opt, embedding_matrix)
         self.model.to(opt.device)
         if opt.device.type == 'cuda':
@@ -115,7 +115,7 @@ class Instructor:
                 param_group['lr'] = lr_this_step
 
 
-            # self.model.train()
+          
         return path
 
     def _evaluate_acc_f1(self, data_loader, labels):
