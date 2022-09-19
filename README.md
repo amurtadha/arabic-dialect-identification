@@ -3,7 +3,7 @@
 
  A model for arabic-dialect-identification.
  
- This is the source code for the paper: ABDELMAJEED Mohammed and  Murtadha, Ahmed, et al. "A Three-Stage Neural Model for  Arabic Dialect Identification" [[1]](). 
+ The source code for the paper: ABDELMAJEED Mohammed and  Murtadha, Ahmed, et al. "A Three-Stage Neural Model for  Arabic Dialect Identification" [[1]](). 
  
 
  
