@@ -51,17 +51,13 @@ class Instructor:
 
         print(len( self.trainset), len( self.testset), len( self.valset))
         self.model = AttnClassifier(opt, embedding_matrix)
-        # self.model = nn.DataParallel(self.model)
         self.model.to(opt.device)
         if opt.device.type == 'cuda':
             logger.info('cuda memory allocated: {}'.format(torch.cuda.memory_allocated(device=opt.device.index)))
 
 
 
-    def warmup_linear(self, x, warmup=0.002):
-        if x < warmup:
-            return x / warmup
-        return 1.0 - x
+ 
     def _train(self, criterion, optimizer, train_data_loader, val_data_loader,t_total, labels):
         max_val_acc = 0
         max_val_f1 = 0
@@ -158,9 +154,8 @@ class Instructor:
         if self.opt.dataset =='Corpus-2':
             labels={'MSA':0, 'Dialect':1}
         else:
-            labels = json.load(open('../datasets/{0}/labels.json'.format(self.opt.dataset)))
-        # if self.opt.dataset == 'Corpus-9':
-        #     labels = {d:i for i,d in enumerate(labels)}
+            labels = json.load(open('datasets/{0}/labels.json'.format(self.opt.dataset)))
+       
         criterion = nn.CrossEntropyLoss()
         _params = filter(lambda p: p.requires_grad, self.model.parameters())
         optimizer = self.opt.optimizer(self.model.parameters(), lr=self.opt.learning_rate, weight_decay=self.opt.l2reg)
@@ -180,57 +175,41 @@ class Instructor:
         logger.info(cls_report)
         logger.info(
             '>> test_precision: {:.4f}, test_recall: {:.4f}, test_f1: {:.4f}, test_acc: {:.4f}'.format(pres, recall, f1_score, acc))
-        with open('results_LSTM.txt', 'a+') as f:
+        with open('results_lstm.txt', 'a+') as f:
             f.write('{} >> test_precision: {:.4f}, test_recall: {:.4f}, test_f1: {:.4f}, test_acc: {:.4f}\n'.format( self.opt.dataset,pres, recall, f1_score, acc))
         f.close()
 
 
 
-def main(dataset=None, device_group=None):
+def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', default='Corpuss-2', type=str, help='Corpus-8,Corpus-26, ')
-    parser.add_argument('--optimizer', default='adam', type=str)
-    parser.add_argument('--initializer', default='xavier_uniform_', type=str)
-    parser.add_argument('--learning_rate', default=0.001, type=float, help='try 5e-5, 2e-5 for BERT, 1e-3 for others')
+    parser.add_argument('--dataset', default='Nadi', type=str, help='Corpus-9,Corpus-6, Nadi')
+    parser.add_argument('--learning_rate', default=0.001, type=float, help='')
     parser.add_argument('--adam_epsilon', default=2e-8, type=float, help='')
-    parser.add_argument('--weight_decay', default=0, type=float, help='try 5e-5, 2e-5 for BERT, 1e-3 for others')
+    parser.add_argument('--weight_decay', default=0, type=float, help='')
     parser.add_argument('--dropout', default=0.5, type=float)
     parser.add_argument('--l2reg', default=0.01, type=float)
-    parser.add_argument('--reg', type=float, default=0.00005, help='regularization constant for weight penalty')
-    parser.add_argument('--num_epoch', default=30, type=int, help='try larger number for non-BERT models')
-    parser.add_argument('--batch_size', default=64, type=int, help='try 16, 32, 64 for BERT models')
-    parser.add_argument('--batch_size_val', default=128, type=int, help='try 16, 32, 64 for BERT models')
+    parser.add_argument('--reg', type=float, default=0.00005, help='')
+    parser.add_argument('--num_epoch', default=30, type=int, help='')
+    parser.add_argument('--batch_size', default=64, type=int, help='')
+    parser.add_argument('--batch_size_val', default=128, type=int, help='')
     parser.add_argument('--log_step', default=35500, type=int)
     parser.add_argument('--embed_dim', default=300, type=int)
     parser.add_argument('--hidden_dim', default=300, type=int)
     parser.add_argument('--max_grad_norm', default=10, type=int)
     parser.add_argument('--warmup_proportion', default=0.01, type=float)
-    parser.add_argument('--bert_dim', default=768, type=int)
-    parser.add_argument('--negative_sampling', default=20, type=int)
-    parser.add_argument('--pretrained_bert_name', default='models/', type=str)
     parser.add_argument('--max_seq_len', default=30, type=int)
-    parser.add_argument('--lebel_dim', default=3, type=int)
-    # parser.add_argument('--glove_path', default='embedding/full_grams_sg_300_twitter.mdl', type=str)
-    parser.add_argument('--glove_path', default='embedding/(cbow58)-asa-3b-cbow-window5-3iter-d300-vecotrs.bin', type=str)
+    parser.add_argument('--embedding', default='cbow58', type=str)
     parser.add_argument('--device', default='cuda' , type=str, help='e.g. cuda:0')
     parser.add_argument('--device_group', default='1' , type=str, help='e.g. cuda:0')
     parser.add_argument('--seed', default=65, type=int, help='set seed for reproducibility')
-    parser.add_argument('--valset_ratio', default=0.1, type=float, help='set ratio between 0 and 1 for validation support')
-    # The following parameters are only valid for the lcf-bert model
-    parser.add_argument('--local_context_focus', default='cdm', type=str, help='local context focus mode, cdw or cdm')
-    parser.add_argument('--SRD', default=3, type=int, help='semantic-relative-distance, see the paper of LCF-BERT model')
     opt = parser.parse_args()
 
 
-
-    if dataset is not  None:
-        opt.dataset = dataset
-
-    if device_group is not  None:
-        opt.device_group = device_group
-    opt.seed= random.randint(20,300)
-    opt.seed= 45
+            
+    opt.glove_path={'cbow58':'embedding/(cbow58)-asa-3b-cbow-window5-3iter-d300-vecotrs.bin','arabvec':'embedding/full_grams_sg_300_twitter.mdl' }.get(opt.embedding)
+  
     if opt.seed is not None:
 
         random.seed(opt.seed)
@@ -241,33 +220,19 @@ def main(dataset=None, device_group=None):
         torch.backends.cudnn.benchmark = False
 
     dataset_files = {
-        'train': '../datasets/{0}/train.json'.format(opt.dataset),
-        'test': '../datasets/{0}/test.json'.format(opt.dataset),
-        'dev': '../datasets/{0}/dev.json'.format(opt.dataset)
+        'train': 'datasets/{0}/train.json'.format(opt.dataset),
+        'test': 'datasets/{0}/test.json'.format(opt.dataset),
+        'dev': 'datasets/{0}/dev.json'.format(opt.dataset)
     }
-    # os.environ['CUDA_VISIBLE_DEVICES']=opt.device_group
+ 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"] = opt.device_group
     input_colses =  ['text_raw_indices', 'label']
-    initializers = {
-        'xavier_uniform_': torch.nn.init.xavier_uniform_,
-        'xavier_normal_': torch.nn.init.xavier_normal,
-        'orthogonal_': torch.nn.init.orthogonal_,
-    }
-    optimizers = {
-        'adadelta': torch.optim.Adadelta,  # default lr=1.0
-        'adagrad': torch.optim.Adagrad,  # default lr=0.01
-        'adam': AdamW,  # default lr=0.001
-        # 'adam': torch.optim.Adam,  # default lr=0.001
-        'adamax': torch.optim.Adamax,  # default lr=0.002
-        'asgd': torch.optim.ASGD,  # default lr=0.01
-        'rmsprop': torch.optim.RMSprop,  # default lr=0.01
-        'sgd': torch.optim.SGD,
-    }
+   
     opt.dataset_file = dataset_files
     opt.inputs_cols = input_colses
-    opt.initializer = initializers[opt.initializer]
-    opt.optimizer = optimizers[opt.optimizer]
+    opt.initializer = torch.nn.init.xavier_uniform_
+    opt.optimizer = AdamW
     opt.device = torch.device(opt.device if torch.cuda.is_available() else 'cpu') \
         if opt.device is None else torch.device(opt.device)
 
@@ -281,12 +246,8 @@ def main(dataset=None, device_group=None):
 
 if __name__ == '__main__':
 
-
-    # for d in [ 'Corpus-6', 'Corpus-9', 'Corpus-26', 'Nadi_REG', 'Nadi']:
-    # for d in [ 'Corpus-2','Corpus-6', 'Corpus-9','Nadi', 'QADI']:
-    for d in [ 'QADI']:
-        #     for i in range(3):
-                main(d, device_group='1')
+    main()
+   
 
 
 
