@@ -38,7 +38,7 @@ class Instructor:
         self.valset = Process_Corpus_BERT(opt.dataset_file['dev'], tokenizer, opt.max_seq_len, opt.dataset)
         self.testset = Process_Corpus_BERT(opt.dataset_file['test'], tokenizer, opt.max_seq_len, opt.dataset)
 
-        print(len( self.trainset), len( self.testset), len( self.valset))
+        logger.info(len( self.trainset), len( self.testset), len( self.valset))
         self.model = ADIBERTCustom(opt)
         self.model.to(opt.device)
         if opt.device.type == 'cuda':
@@ -46,20 +46,7 @@ class Instructor:
        
 
 
-    def _print_args(self):
-        n_trainable_params, n_nontrainable_params = 0, 0
-        for p in self.model.parameters():
-            n_params = torch.prod(torch.tensor(p.shape))
-            if p.requires_grad:
-                n_trainable_params += n_params
-            else:
-                n_nontrainable_params += n_params
-        logger.info('n_trainable_params: {0}, n_nontrainable_params: {1}'.format(n_trainable_params, n_nontrainable_params))
-        logger.info('> training arguments:')
-        for arg in vars(self.opt):
-            logger.info('>>> {0}: {1}'.format(arg, getattr(self.opt, arg)))
-
-    
+  
 
     def _train(self, criterion, optimizer, train_data_loader, val_data_loader,t_total, labels):
         max_val_acc = 0
@@ -178,14 +165,14 @@ class Instructor:
         logger.info(cls_report)
         logger.info(
             '>> test_precision: {:.4f}, test_recall: {:.4f}, test_f1: {:.4f}, test_acc: {:.4f}'.format(pres, recall, f1_score, acc))
-        with open('results_BERT.txt', 'a+') as f:
+        with open('results_bert.txt', 'a+') as f:
             f.write('{} {} >> test_precision: {:.4f}, test_recall: {:.4f}, test_f1: {:.4f}, test_acc: {:.4f}\n'.format(self.opt.baseline, self.opt.dataset,pres, recall, f1_score, acc))
         f.close()
         
 
 
 
-def main(dataset=None, baseline=None, device_group=None):
+def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default='Corpuss-2', type=str, help='Corpus-9,Corpus-6, Nadi, QADI ')
@@ -214,12 +201,7 @@ def main(dataset=None, baseline=None, device_group=None):
 
 
 
-    if dataset is not  None:
-        opt.dataset = dataset
-    if baseline is not  None:
-        opt.baseline = baseline
-    if device_group is not  None:
-        opt.device_group = device_group
+   
 
     plm = {
         'camel':'CAMeL-Lab/bert-base-arabic-camelbert-msa',
