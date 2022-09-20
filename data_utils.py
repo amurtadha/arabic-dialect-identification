@@ -60,11 +60,10 @@ def _load_word_vec(path,embed_dim, word2idx=None):
     return word_vec
 
 
-def build_embedding_matrix(opt,word2idx, embed_dim, dat_fname):
-    print(dat_fname)
-    if os.path.exists('embedding/_'+dat_fname):
-        print('loading embedding_matrix:', 'embedding/_'+dat_fname)
-        embedding_matrix = pickle.load(open('embedding/_'+dat_fname, 'rb'))
+def build_embedding_matrix(opt,word2idx, embed_dim, dat_fname,embedding):
+    if os.path.exists('embedding/{}_{}'.format(embedding,dat_fname)):
+        print('loading embedding_matrix embedding/{}_{}'.format(embedding,dat_fname))
+        embedding_matrix = pickle.load(open('embedding/{}_{}'.format(embedding,dat_fname), 'rb'))
     else:
         print('loading word vectors...')
         embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
@@ -76,13 +75,13 @@ def build_embedding_matrix(opt,word2idx, embed_dim, dat_fname):
             if vec is not None:
                 # words not found in embedding index will be all-zeros.
                 embedding_matrix[i] = vec
-        pickle.dump(embedding_matrix, open('embedding/_'+dat_fname, 'wb'))
+        pickle.dump(embedding_matrix, open('embedding/{}_{}'.format(embedding,dat_fname), 'wb'))
     return embedding_matrix
 
 def build_tokenizer(fnames, max_seq_len, dat_fname):
-    if os.path.exists('embedding/_'+dat_fname):
-        print('loading tokenizer:', 'embedding/_'+dat_fname)
-        tokenizer = pickle.load(open('embedding/_'+dat_fname, 'rb'))
+    if os.path.exists('embedding/{}_{}'.format(embedding,dat_fname)):
+        print('loading tokenizer: embedding/{}_{}'.format(embedding,dat_fname))
+        tokenizer = pickle.load(open('embedding/{}_{}'.format(embedding,dat_fname), 'rb'))
     else:
         text = ''
         for fname in fnames:
@@ -94,7 +93,7 @@ def build_tokenizer(fnames, max_seq_len, dat_fname):
                 text += text_raw + " "
         tokenizer = Tokenizer(max_seq_len)
         tokenizer.fit_on_text(text)
-        pickle.dump(tokenizer, open('embedding/_'+dat_fname, 'wb'))
+        pickle.dump(tokenizer, open('embedding/{}_{}'.format(embedding,dat_fname), 'wb'))
     return tokenizer
 def pad_and_truncate(sequence, maxlen, dtype='int64', padding='post', truncating='post', value=0):
     x = (np.ones(maxlen) * value).astype(dtype)
