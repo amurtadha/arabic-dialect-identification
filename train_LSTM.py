@@ -30,12 +30,12 @@ class Instructor:
         self.opt = opt
 
         self.tokenizer = build_tokenizer(fnames=[opt.dataset_file.get(k) for k in opt.dataset_file.keys()],
-                                         max_seq_len=opt.max_seq_len,
+                                         max_seq_len=opt.max_seq_len,embedding=opt.embedding,
                                          dat_fname='{0}_tokenizer.dat'.format(opt.dataset))
 
         embedding_matrix = build_embedding_matrix(self.opt,
                                                   word2idx=self.tokenizer.word2idx,
-                                                  embed_dim=opt.embed_dim,
+                                                  embed_dim=opt.embed_dim,embedding=opt.embedding,
                                                   dat_fname='{0}_{1}_embedding_matrix.dat'.format(
                                                       str(opt.embed_dim),
                                                       opt.dataset))
@@ -200,7 +200,7 @@ def main():
     parser.add_argument('--max_grad_norm', default=10, type=int)
     parser.add_argument('--warmup_proportion', default=0.01, type=float)
     parser.add_argument('--max_seq_len', default=30, type=int)
-    parser.add_argument('--embedding', default='cbow58', type=str)
+    parser.add_argument('--embedding', default='cbow58', type=str help='cbow58, arabvec')
     parser.add_argument('--device', default='cuda' , type=str, help='e.g. cuda:0')
     parser.add_argument('--device_group', default='1' , type=str, help='e.g. cuda:0')
     parser.add_argument('--seed', default=65, type=int, help='set seed for reproducibility')
