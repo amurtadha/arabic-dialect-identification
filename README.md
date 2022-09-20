@@ -10,12 +10,17 @@
 
 # Data
 
-* The datasets used in our experminents can be downloaded from  [MADAR](https://docs.google.com/forms/d/e/1FAIpQLSe0PRkK8uetqWTlxGAUn7MupNcRO3HOHQeHK4_xkoZ7TAh98g/viewform). 
-* The embedding models are publically available. 
-    * [cbow58](https://drive.google.com/open?id=0B2WzDD9FC2KXRHlYNjYxUmowRW8)
-    * [arabvec](https://github.com/bakrianoo/aravec)
+* The datasets used in our experminents can be downloaded from  [MADAR](https://docs.google.com/forms/d/e/1FAIpQLSe0PRkK8uetqWTlxGAUn7MupNcRO3HOHQeHK4_xkoZ7TAh98g/viewform), [QADI](https://github.com/qcri/QADI) and [NADI](https://github.com/UBC-NLP/nadi)
+* We have processed Nadi dataset datasets/Nadi/
+* The embeddings of Nadi dataset for both cbow58 and arabvec [download](https://drive.google.com/drive/folders/1RY2-_gW5jXRtSBn4yf_HuDPRPZVV2qjN?usp=sharing) and put them to embedding/
+* To build the embeddings and tokenizer of the other datasets:
+	* download these models:
+    		* [cbow58](https://drive.google.com/open?id=0B2WzDD9FC2KXRHlYNjYxUmowRW8)
+    		* [arabvec](https://github.com/bakrianoo/aravec)
     
-Place the embedding files in embedding/
+	* unzip them into embedding/
+
+
 
 # Prerequisites:
 Required packages are listed in the requirements.txt file:
