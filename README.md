@@ -10,7 +10,7 @@
 
 # Data
 
-* The datasets used in our experminents can be downloaded from this [MADAR](https://docs.google.com/forms/d/e/1FAIpQLSe0PRkK8uetqWTlxGAUn7MupNcRO3HOHQeHK4_xkoZ7TAh98g/viewform). 
+* The datasets used in our experminents can be downloaded from  [MADAR](https://docs.google.com/forms/d/e/1FAIpQLSe0PRkK8uetqWTlxGAUn7MupNcRO3HOHQeHK4_xkoZ7TAh98g/viewform). 
 * The embedding models are publically available. 
     * [cbow58](https://drive.google.com/open?id=0B2WzDD9FC2KXRHlYNjYxUmowRW8)
     * [arabvec](https://github.com/bakrianoo/aravec)
