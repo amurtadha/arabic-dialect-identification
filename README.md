@@ -15,7 +15,7 @@
 * The embeddings of Nadi dataset for both cbow58 and arabvec [download](https://drive.google.com/drive/folders/1RY2-_gW5jXRtSBn4yf_HuDPRPZVV2qjN?usp=sharing) and put them to embedding/
 * To build the embeddings and tokenizer of the other datasets:
 	* download these models:
-    		* [cbow58](https://drive.google.com/open?id=0B2WzDD9FC2KXRHlYNjYxUmowRW8)
+    		* [cbow58](https://github.com/dahouabdelghani/arabic_word_embeddings_CNN)
     		* [arabvec](https://github.com/bakrianoo/aravec)
     
 	* unzip them into embedding/
